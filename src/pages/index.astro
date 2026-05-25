@@ -1,0 +1,178 @@
+---
+// Astro frontmatter — server-side logic goes here if needed
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CGPA Calculator — Malaysian Public University</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-tag">UMS · 4.0 Scale</div>
+    <h1>CGPA Calculator</h1>
+    <p>Malaysian Public University grading system</p>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('sem')" id="tbtn-sem">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+    Semester
+  </button>
+  <button class="tab-btn" onclick="switchTab('cgpa')" id="tbtn-cgpa">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    CGPA
+  </button>
+  <button class="tab-btn" onclick="switchTab('target')" id="tbtn-target">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+    Target
+  </button>
+  <button class="tab-btn" onclick="switchTab('ref')" id="tbtn-ref">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    Grade Ref
+  </button>
+</div>
+
+<div class="main">
+
+  <!-- ── TAB 1: Semester GPA ── -->
+  <div id="tab-sem" class="tab-content active">
+    <div class="note-banner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      A+ and A both carry <strong style="margin:0 2px">4.00</strong> grade points per UMS grading policy.
+    </div>
+    <div class="section-title">Subjects this semester</div>
+    <div class="col-headers">
+      <div class="col-hdr">Subject</div>
+      <div class="col-hdr">Credit</div>
+      <div class="col-hdr">Grade</div>
+      <div class="col-hdr"></div>
+    </div>
+    <div id="sem-subjects"></div>
+    <button class="add-btn" onclick="addSemSubject()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add subject
+    </button>
+    <button class="calc-btn" onclick="calcSemGPA()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6M9 12h4M9 15h6"/></svg>
+      Calculate GPA
+    </button>
+    <div id="sem-result" style="display:none">
+      <div class="result-card" id="sem-result-card">
+        <div class="lbl">Semester GPA</div>
+        <div class="big" id="sem-gpa-val">0.00</div>
+        <span id="sem-class-badge" class="class-badge"></span>
+      </div>
+      <div class="metric-row">
+        <div class="metric">
+          <div class="metric-label">Total credits</div>
+          <div class="metric-value" id="sem-credits">0</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Grade points</div>
+          <div class="metric-value purple" id="sem-points">0.00</div>
+        </div>
+      </div>
+      <button class="calc-btn green" onclick="exportPDF('sem')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- ── TAB 2: CGPA Tracker ── -->
+  <div id="tab-cgpa" class="tab-content">
+    <div class="section-title">All semesters</div>
+    <div id="cgpa-semesters"></div>
+    <button class="add-btn" onclick="addSemester()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add semester
+    </button>
+    <button class="calc-btn" onclick="calcCGPA()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Calculate CGPA
+    </button>
+    <div id="cgpa-result" style="display:none">
+      <div class="result-card">
+        <div class="lbl">Cumulative CGPA</div>
+        <div class="big" id="cgpa-val">0.00</div>
+        <span id="cgpa-class-badge" class="class-badge"></span>
+      </div>
+      <div class="metric-row">
+        <div class="metric">
+          <div class="metric-label">Total credits</div>
+          <div class="metric-value" id="cgpa-total-credits">0</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Semesters</div>
+          <div class="metric-value purple" id="cgpa-sem-count">0</div>
+        </div>
+      </div>
+      <button class="calc-btn green" onclick="exportPDF('cgpa')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- ── TAB 3: Target Planner ── -->
+  <div id="tab-target" class="tab-content">
+    <div class="section-title">Target CGPA planner</div>
+    <div class="target-row">
+      <label>Current CGPA</label>
+      <input type="number" id="cur-cgpa" min="0" max="4" step="0.01" placeholder="e.g. 3.20">
+    </div>
+    <div class="target-row">
+      <label>Credits completed so far</label>
+      <input type="number" id="cur-credits" min="0" placeholder="e.g. 80">
+    </div>
+    <div class="target-row">
+      <label>Target CGPA</label>
+      <input type="number" id="tgt-cgpa" min="0" max="4" step="0.01" placeholder="e.g. 3.67">
+    </div>
+    <div class="target-row">
+      <label>Remaining credits to complete</label>
+      <input type="number" id="rem-credits" min="0" placeholder="e.g. 40">
+    </div>
+    <button class="calc-btn" onclick="calcTarget()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+      Calculate required GPA
+    </button>
+    <div id="target-result" style="display:none">
+      <div class="result-card" id="target-result-card">
+        <div class="lbl" id="target-lbl">Required GPA for remaining semesters</div>
+        <div class="big" id="target-val">—</div>
+        <div id="target-msg" style="font-size:13px;color:rgba(255,255,255,0.8);margin-top:8px;line-height:1.5;position:relative"></div>
+      </div>
+      <div class="info-box" id="target-info"></div>
+    </div>
+  </div>
+
+  <!-- ── TAB 4: Grade Reference ── -->
+  <div id="tab-ref" class="tab-content">
+    <div class="section-title">Grade scale</div>
+    <div class="note-banner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      A+ carries the same 4.00 grade points as A — it is an excellence recognition, not a higher GPA value.
+    </div>
+    <div class="grade-grid" id="grade-ref-table"></div>
+    <div class="divider"></div>
+    <div class="section-title">Degree classification</div>
+    <div class="class-list" id="class-table"></div>
+  </div>
+
+</div><!-- end .main -->
+
+<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script is:inline src="/app.js"></script>
+
+</body>
+</html>
