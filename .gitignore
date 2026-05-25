@@ -10,3 +10,7 @@ dist/
 # env files
 .env
 .env.*
+
+# Capacitor native projects (regenerated via npx cap sync)
+android/
+ios/
